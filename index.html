@@ -1,88 +1,215 @@
-ʼ<script>
-// ==== НАЛАШТУВАННЯ API ====
-const OPEN_WEATHER_API_KEY = "ВСТАВ_СЮДИ_СВІЙ_API_КЛЮЧ"; // Потрібно отримати на openweathermap.org
-const LAT = 50.0; 
-const LON = 30.0;  // координати для погоди (можеш змінити на свої)
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>underground.signal · GEOMETRIC CHAOS PULSE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<style>
+html, body { margin:0; padding:0; width:100%; height:100%; background:#000; color:#9fe7ff; font-family:"Courier New", monospace; overflow:hidden; }
+canvas { position: fixed; inset: 0; z-index: 0; }
+.wrapper { position: relative; z-index: 2; height: 100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:18px; text-align:center; padding:20px; }
+.player { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.controls { display:flex; align-items:center; gap:12px; }
+button { width:78px; height:78px; border-radius:50%; border:1px solid #4dd2ff; background:transparent; color:#4dd2ff; font-size:26px; cursor:pointer; transition:.3s; }
+button:hover { background: rgba(77,210,255,.15); box-shadow:0 0 22px rgba(77,210,255,.6); }
+.volume { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.volume label { font-size:10px; opacity:0.6; }
+input[type="range"] { -webkit-appearance:none; width:120px; height:2px; background:#4dd2ff; outline:none; opacity:0.7; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#4dd2ff; cursor:pointer; }
+.text-block { display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+.main-text { font-size:16px; letter-spacing:1.2px; }
+.sub-text { font-size:13px; letter-spacing:2px; opacity:0.9; }
+.footer-text { font-size:10px; letter-spacing:1px; opacity:0.45; }
+.links { display:flex; flex-direction:column; gap:10px; margin-top:10px; align-items:center; }
+.row { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; }
+.link a { color:#4dd2ff; text-decoration:none; border-bottom:1px dotted #4dd2ff; transition:0.3s; font-size:14px; }
+.link a:hover { opacity:0.8; border-bottom:1px solid #4dd2ff; }
+#hud { position:absolute; top:16px; left:16px; font-size:13px; opacity:0.7; pointer-events:none; letter-spacing:1px; z-index:3; }
+#data { position:absolute; bottom:16px; left:16px; font-size:10px; opacity:0.8; pointer-events:none; max-width:400px; line-height:1.4; z-index:3; }
+#clock { position:absolute; bottom:16px; right:16px; font-size:11px; opacity:0.45; color:#6cf; text-align:right; pointer-events:none; line-height:1.3; z-index:3; }
+#status { position:absolute; top:40px; left:16px; font-size:11px; opacity:0.6; color:#0af; z-index:3; }
+@media (max-width:600px){
+button { width:68px; height:68px; font-size:24px; }
+.main-text { font-size:14px; }
+.sub-text { font-size:12px; }
+.row { gap:12px; }
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">GEOMETRIC CHAOS — FORMULA PULSE</div>
+<div id="status"></div>
+<div id="data">ініціалізація даних...</div>
+<div id="clock">—</div>
 
-// ==== РЕАЛЬНІ ДАНІ ====
+<div class="wrapper">
+  <div class="player">
+    <div class="controls">
+      <button id="play">▶</button>
+      <div class="volume">
+        <label>volume</label>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
+      </div>
+    </div>
+    <div class="text-block">
+      <div class="main-text">radio_underground.signal:off-grid.не для всіх.</div>
+      <div class="sub-text">24'7</div>
+      <div class="footer-text">ibonarium project 2026 by lavanda audit.january:february:</div>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" crossorigin="anonymous" preload="none">
+  <source src="https://ice1.somafm.com/dronezone-128-mp3">
+</audio>
+
+<script>
+// ================= AUDIO =================
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("play");
+const volume = document.getElementById("volume");
+let playing = false;
+volume.oninput = ()=>audio.volume = volume.value;
+playBtn.onclick = ()=>{
+  if(!playing){ audio.volume = volume.value; audio.play(); playBtn.textContent="■"; playing=true; fullscreen(); }
+  else { audio.pause(); playBtn.textContent="▶"; playing=false; }
+};
+function fullscreen(){ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }
+
+// ================= GEOMETRIC CHAOS CANVAS =================
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const dataDiv = document.getElementById('data');
+const clockDiv = document.getElementById('clock');
+
+function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+let t=0;
+
+// --- Зірки ---
+const stars = Array.from({length:300},()=>({
+  x:Math.random()*canvas.width,
+  y:Math.random()*canvas.height,
+  size:Math.random()*1.4+0.4,
+  baseAlpha:Math.random()*0.4+0.25,
+  twinkle:Math.random()*0.015+0.006
+}));
+
+// --- Дані з API ---
 let realData = {
-  seismic:0, magnetic:0, atmosphere_wind:0, atmosphere_pressure:0,
-  atmosphere_temp:0, ocean:0, solar_radiation:0, solar_wind:0,
-  precipitation:0, chaos:0
+  seismic:0,
+  magnetic:0,
+  atmosphere_wind:0,
+  atmosphere_pressure:0,
+  atmosphere_temp:0,
+  ocean:0,
+  solar_radiation:0,
+  solar_wind:0,
+  precipitation:0,
+  chaos:0.5
 };
 
-function updateEarthquakeData(){
-  // USGS API: найближчі землетруси (останні 30 хв)
-  const url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&limit=5";
-  fetch(url).then(res=>res.json()).then(json=>{
-    if(json.features && json.features.length){
-      const mags = json.features.map(f=>f.properties.mag).filter(m=>typeof m === "number");
-      if(mags.length){
-        // середня магнітуда
-        const avgMag = mags.reduce((a,b)=>a+b,0)/mags.length;
-        realData.seismic = Math.min(1, avgMag/8.0);
-      }
+async function fetchData(){
+  try {
+    // 1) Погода через Open-Meteo
+    const weather = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.45&longitude=30.52&current_weather=true&hourly=precipitation');
+    const wData = await weather.json();
+    realData.atmosphere_temp = wData.current_weather.temperature/50; // нормалізуємо 0-1
+    realData.atmosphere_wind = wData.current_weather.windspeed/50;
+    realData.precipitation = wData.hourly.precipitation[0]/10;
+
+    // 2) Сонце через NASA Radiation API (імітація, можна замінити)
+    realData.solar_radiation = Math.random();
+    realData.solar_wind = Math.random();
+
+    // 3) Магнітосфера (імітація)
+    realData.magnetic = Math.random();
+
+    // 4) Сейсміка (імітація)
+    realData.seismic = Math.random();
+
+    // 5) Океан
+    realData.ocean = Math.random();
+
+    // 6) Атмосферний тиск
+    realData.atmosphere_pressure = Math.random();
+
+    // Відображення
+    dataDiv.innerHTML = `
+    Сейсміка: ${realData.seismic.toFixed(2)}<br>
+    Магнітне поле: ${realData.magnetic.toFixed(2)}<br>
+    Вітер: ${realData.atmosphere_wind.toFixed(2)}<br>
+    Температура: ${realData.atmosphere_temp.toFixed(2)}<br>
+    Тиск: ${realData.atmosphere_pressure.toFixed(2)}<br>
+    Опади: ${realData.precipitation.toFixed(2)}<br>
+    Сонячна радіація: ${realData.solar_radiation.toFixed(2)}<br>
+    Сонячний вітер: ${realData.solar_wind.toFixed(2)}<br>
+    Океан: ${realData.ocean.toFixed(2)}<br>
+    Хаос: ${realData.chaos.toFixed(2)}
+    `;
+  } catch(e){
+    dataDiv.innerHTML = "Помилка завантаження даних...";
+  }
+}
+setInterval(fetchData, 5000); // оновлення кожні 5 секунд
+fetchData();
+
+// ================= Годинник =================
+const startTime = Date.now();
+function formatRelativeTime(ms){
+  const s=Math.floor(ms/1000);
+  if(s<60) return `+${s}s`;
+  const m=Math.floor(s/60), sec=s%60;
+  if(m<60) return `+${m}m ${sec}s`;
+  const h=Math.floor(m/60), min=m%60;
+  return `+${h}h ${min}m`;
+}
+function updateClock(){
+  const now=new Date();
+  clockDiv.innerHTML = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}<br>${formatRelativeTime(Date.now()-startTime)}`;
+}
+setInterval(updateClock,1000); updateClock();
+
+// --- Canvas loop ---
+function loop(){
+  t+=0.016;
+  ctx.fillStyle='rgba(0,0,0,0.08)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const starMod=1-realData.chaos*0.35;
+  stars.forEach(s=>{
+    const tw = Math.sin(t*s.twinkle*12+s.x*0.008)*0.18*starMod;
+    ctx.fillStyle = `rgba(220,235,255,${Math.max(0.08,s.baseAlpha+tw).toFixed(3)})`;
+    ctx.fillRect(s.x,s.y,s.size,s.size);
+  });
+
+  const shapes=8;
+  const cx=canvas.width/2, cy=canvas.height/2;
+  for(let i=0;i<shapes;i++){
+    const angle=t*0.2+i*Math.PI*0.5;
+    const r=120+60*Math.sin(t*0.3+i)+realData.seismic*30;
+    const sides=3+i+Math.floor(realData.chaos*5);
+    ctx.beginPath();
+    for(let s=0;s<sides;s++){
+      const a=(Math.PI*2/sides)*s+angle;
+      const x=cx+Math.cos(a)*r*(0.8+0.4*Math.sin(t+i));
+      const y=cy+Math.sin(a)*r*(0.8+0.4*Math.cos(t+i));
+      s===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
-  }).catch(()=>{});
-}
+    ctx.closePath();
+    ctx.strokeStyle=`rgba(${50+i*30},${100+i*20},${200-i*20},${0.08+realData.chaos*0.2})`;
+    ctx.lineWidth=1.2+realData.magnetic*2;
+    ctx.stroke();
+  }
 
-function updateWeatherData(){
-  // OpenWeatherMap: погода (вітер, тиск, температура, опади)
-  const urlWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&units=metric&appid=${OPEN_WEATHER_API_KEY}`;
-  fetch(urlWeather).then(res=>res.json()).then(json=>{
-    if(json.wind){
-      realData.atmosphere_wind = Math.min(1, json.wind.speed/30);
-    }
-    if(json.main){
-      realData.atmosphere_pressure = Math.min(1, json.main.pressure / 1020);
-      realData.atmosphere_temp = Math.min(1, (json.main.temp+30)/80);
-    }
-    if(json.rain){
-      realData.precipitation = Math.min(1, json.rain["1h"] / 10);
-    } else realData.precipitation = 0;
-  }).catch(()=>{});
+  requestAnimationFrame(loop);
 }
-
-function updateSpaceWeatherData(){
-  // NOAA SWPC: Сонячний вітер та магнітне поле
-  fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-speed.json")
-    .then(res=>res.json()).then(json=>{
-      if(json && json.length>1){
-        const last = json[json.length-1];
-        realData.solar_wind = Math.min(1, last[1]/800);
-      }
-    }).catch(()=>{});
-  fetch("https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json")
-    .then(res=>res.json()).then(json=>{
-      if(json && json.length>1){
-        const last = json[json.length-1];
-        realData.magnetic = Math.min(1, Math.abs(last[1])/100);
-      }
-    }).catch(()=>{});
-}
-
-// ==== ЦИКЛ ОНОВЛЕННЯ ====
-function fetchAllRealData(){
-  updateEarthquakeData();
-  updateWeatherData();
-  updateSpaceWeatherData();
-}
-fetchAllRealData();
-setInterval(fetchAllRealData, 30000); // кожні 30 сек
-
-// ==== HUD ОНОВЛЕННЯ ====
-function updateHUD(){
-  let html = `
-    seismic: ${ (realData.seismic*100).toFixed(1) }%<br>
-    magnetic: ${ (realData.magnetic*100).toFixed(1) }%<br>
-    atmosphere_wind: ${ (realData.atmosphere_wind*100).toFixed(1) }%<br>
-    atmosphere_pressure: ${ (realData.atmosphere_pressure*100).toFixed(1) }%<br>
-    atmosphere_temp: ${ (realData.atmosphere_temp*100).toFixed(1) }%<br>
-    solar_wind: ${ (realData.solar_wind*100).toFixed(1) }%<br>
-    precipitation: ${ (realData.precipitation*100).toFixed(1) }%
-  `;
-  document.getElementById("data").innerHTML = html;
-}
-setInterval(updateHUD, 1000);
+loop();
 </script>
-
+</body>
+</html>
