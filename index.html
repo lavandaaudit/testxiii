@@ -2,153 +2,52 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>underground.signal · GEOMETRIC CHAOS PULSE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="referrer" content="no-referrer">
-<meta name="robots" content="noindex,nofollow">
+<title>GEOMETRIC CHAOS · LIVE DATA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 html, body {
   margin:0; padding:0;
   width:100%; height:100%;
   background:#000;
-  color:#9fe7ff;
+  color:#0af;
   font-family:"Courier New", monospace;
   overflow:hidden;
 }
-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-}
+canvas { position:fixed; inset:0; z-index:0; }
 .wrapper {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 18px;
-  text-align: center;
-  padding: 20px;
+  position:relative; z-index:2; height:100%;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  gap:18px; text-align:center; padding:20px;
 }
-.player { display:flex; flex-direction:column; align-items:center; gap:12px; }
-.controls { display:flex; align-items:center; gap:12px; }
+.player, .links { z-index:2; }
 button {
-  width:78px; height:78px; border-radius:50%; border:1px solid #4dd2ff;
-  background:transparent; color:#4dd2ff; font-size:26px; cursor:pointer; transition:.3s;
+  width:78px; height:78px; border-radius:50%;
+  border:1px solid #4dd2ff; background:transparent;
+  color:#4dd2ff; font-size:26px; cursor:pointer;
+  transition:.3s;
 }
-button:hover {
-  background: rgba(77,210,255,.15);
-  box-shadow:0 0 22px rgba(77,210,255,.6);
-}
-.volume { display:flex; flex-direction:column; align-items:center; gap:4px; }
-.volume label { font-size:10px; opacity:0.6; }
-input[type="range"] {
-  -webkit-appearance:none;
-  width:120px; height:2px;
-  background:#4dd2ff;
-  outline:none;
-  opacity:0.7;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  width:12px; height:12px;
-  border-radius:50%;
-  background:#4dd2ff;
-  cursor:pointer;
-}
-.text-block { display:flex; flex-direction:column; gap:4px; margin-top:4px; }
-.main-text { font-size:16px; letter-spacing:1.2px; }
-.sub-text { font-size:13px; letter-spacing:2px; opacity:0.9; }
-.footer-text { font-size:10px; letter-spacing:1px; opacity:0.45; }
-.links { display:flex; flex-direction:column; gap:10px; margin-top:10px; align-items:center; }
-.row { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; }
-.link a { color:#4dd2ff; text-decoration:none; border-bottom:1px dotted #4dd2ff; transition:0.3s; font-size:14px; }
-.link a:hover { opacity:0.8; border-bottom:1px solid #4dd2ff; }
+button:hover { background: rgba(77,210,255,.15); box-shadow:0 0 22px rgba(77,210,255,.6); }
+input[type="range"] { -webkit-appearance:none; width:120px; height:2px; background:#4dd2ff; outline:none; opacity:0.7; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#4dd2ff; cursor:pointer; }
 
-/* HUD & GEOMETRIC CHAOS */
-#hud { position:absolute; top:16px; left:16px; font-size:13px; opacity:0.7; pointer-events:none; letter-spacing:1px; z-index:3; }
-#data { position:absolute; bottom:16px; left:16px; font-size:10px; opacity:0.6; pointer-events:none; max-width:400px; line-height:1.4; z-index:3; }
-#clock { position:absolute; bottom:16px; right:16px; font-size:11px; opacity:0.45; color:#6cf; text-align:right; pointer-events:none; line-height:1.3; z-index:3; }
-#status { position:absolute; top:40px; left:16px; font-size:11px; opacity:0.6; color:#0af; z-index:3; }
-
-/* ===== MAGNETIC STORM PULSE ===== */
-@keyframes magnetPulse {
-  0% { box-shadow: 0 0 0 rgba(77,210,255,0.0); }
-  50% { box-shadow: 0 0 18px rgba(77,210,255,0.9); }
-  100% { box-shadow: 0 0 0 rgba(77,210,255,0.0); }
-}
-.magnet-storm {
-  animation: magnetPulse 1.4s infinite;
-  border-bottom:1px solid #4dd2ff !important;
-}
-
-@media (max-width:600px){
-  button { width:68px; height:68px; font-size:24px; }
-  .main-text { font-size:14px; }
-  .sub-text { font-size:12px; }
-  .row { gap:12px; }
-}
+#hud { position:absolute; top:16px; left:16px; font-size:13px; opacity:0.7; pointer-events:none; }
+#clock { position:absolute; bottom:16px; right:16px; font-size:11px; opacity:0.45; color:#6cf; pointer-events:none; text-align:right; }
+#status { position:absolute; top:40px; left:16px; font-size:11px; opacity:0.6; color:#0af; }
+#data { position:absolute; top:60px; left:16px; width:220px; font-size:10px; opacity:0.6; pointer-events:none; line-height:1.4; }
 </style>
 </head>
 <body>
-
 <canvas id="c"></canvas>
-<div id="hud">GEOMETRIC CHAOS — FORMULA PULSE</div>
-<div id="status"></div>
-<div id="data">ініціалізація...</div>
-<div id="clock">—</div>
+<div id="hud">GEOMETRIC CHAOS · LIVE DATA</div>
+<div id="status">ініціалізація даних...</div>
+<div id="data"></div>
+<div id="clock"></div>
 
 <div class="wrapper">
-
   <div class="player">
-    <div class="controls">
-      <button id="play">▶</button>
-      <div class="volume">
-        <label>volume</label>
-        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
-      </div>
-    </div>
-
-    <div class="text-block">
-      <div class="main-text">radio_underground.signal:off-grid.не для всіх.</div>
-      <div class="sub-text">24'7</div>
-      <div class="footer-text">ibonarium project 2026 by lavanda audit.january:february:</div>
-    </div>
-  </div>
-
-  <div class="links">
-    <div class="row">
-      <div class="link"><a href="https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/" target="_blank">sun.ibonarium</a></div>
-      <div class="link"><a href="https://lavandaaudit.github.io/ibonarium.planet.radar/" target="_blank">planet.radar</a></div>
-      <div class="link"><a href="https://lavandaaudit.github.io/cosmo.dynamics/" target="_blank">moon.ibonarium</a></div>
-    </div>
-    <div class="row">
-      <div class="link"><a href="https://lavandaaudit.github.io/ibonarium.ecology.radar/" target="_blank">ecology.radar</a></div>
-      <div class="link"><a href="#" id="translatorLink">.translator</a></div>
-      <div class="link"><a href="#" id="magnetLab" onclick="openMagnetLab()">.magnet.lab</a></div>
-    </div>
-    <div class="row">
-      <div class="link"><a href="#" onclick="openCriptoLabLive()">cripto.lab.live</a></div>
-      <div class="link"><a href="#" onclick="openSocialLive()">lavanda.soft</a></div>
-      <div class="link"><a href="#" onclick="openIbonariumTV()">ibonarium.tv</a></div>
-    </div>
-    <div class="row">
-      <div class="link"><a href="#" onclick="openSolarStability()">solar.stability</a></div>
-      <div class="link"><a href="#" onclick="openIModular01()">i.modular.1.3</a></div>
-      <div class="link"><a href="#" onclick="openIDrum32()">i.drum.32</a></div>
-    </div>
-    <div class="row">
-      <div class="link"><a href="#" onclick="openEcoSystem()">eco.system</a></div>
-      <div class="link"><a href="#" onclick="openOceanLab()">ocean.lab</a></div>
-      <div class="link"><a href="#" onclick="openHumanityLab()">humanity.lab</a></div>
-    </div>
-    <div class="row">
-      <div class="link"><a href="#" onclick="openIModularXIII()">i.modularXIII</a></div>
-      <div class="link"><a href="#" onclick="openAgroLab()">agro.ua.lab</a></div>
-      <div class="link"><a href="#" onclick="openPhGeoLab()">ph.geo.lab</a></div>
-    </div>
+    <button id="play">▶</button>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
   </div>
 </div>
 
@@ -161,139 +60,105 @@ input[type="range"]::-webkit-slider-thumb {
 const audio = document.getElementById("audio");
 const playBtn = document.getElementById("play");
 const volume = document.getElementById("volume");
-let playing = false;
-volume.oninput = ()=>audio.volume = volume.value;
-playBtn.onclick = ()=>{
-  if(!playing){ audio.volume = volume.value; audio.play(); playBtn.textContent="■"; playing=true; fullscreen(); }
+let playing=false;
+volume.oninput=()=>audio.volume=volume.value;
+playBtn.onclick=()=>{
+  if(!playing){ audio.play(); playBtn.textContent="■"; playing=true; }
   else { audio.pause(); playBtn.textContent="▶"; playing=false; }
 };
-function fullscreen(){ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }
 
-// ================= LINKS =================
-function openSocialLive(){ window.open("https://lavandaaudit.github.io/lavanda.soft/", "_blank"); }
-function openCriptoLabLive(){ window.open("https://lavandaaudit.github.io/ibonarium.economy/", "_blank"); }
-function openIbonariumTV(){ window.open("https://lavandaaudit.github.io/history.musem.ibonarium/", "_blank"); }
-function openSolarStability(){ window.open("https://lavandaaudit.github.io/human.stability.calendar/", "_blank"); }
-function openIModular01(){ window.open("https://lavandaaudit.github.io/synthesizer/", "_blank"); }
-function openIModularXIII(){ window.open("https://lavandaaudit.github.io/modularxiii/", "_blank"); }
-function openMagnetLab(){ window.open("https://lavandaaudit.github.io/Geospace-Activity/", "_blank"); }
-function openIDrum32(){ window.open("https://lavandaaudit.github.io/ibonarium.drum.machine.32.v1.3/", "_blank"); }
-function openEcoSystem(){ window.open("https://lavandaaudit.github.io/ibonarium.eco.system.radar/", "_blank"); }
-function openOceanLab(){ window.open("https://lavandaaudit.github.io/ocean.ibonarium.live.lab/", "_blank"); }
-function openHumanityLab(){ window.open("https://lavandaaudit.github.io/Ibonarium.HUMANITY.lab.live/", "_blank"); }
-function openAgroLab(){ window.open("https://lavandaaudit.github.io/ibonarium.agro.ua/", "_blank"); }
-function openPhGeoLab(){ window.open("https://lavandaaudit.github.io/test2/", "_blank"); }
-const translatorLink=document.getElementById("translatorLink");
-translatorLink.onclick=e=>{ e.preventDefault(); window.open("https://lavandaaudit.github.io/live.monitor.lab/", "_blank"); };
+// ================= CLOCK =================
+const clockDiv=document.getElementById('clock');
+function updateClock(){
+  const now=new Date();
+  clockDiv.innerHTML = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+}
+setInterval(updateClock,1000);
+updateClock();
 
-// ================= GEOMETRIC CHAOS CANVAS =================
+// ================= CANVAS =================
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-const dataDiv = document.getElementById('data');
-const clockDiv = document.getElementById('clock');
-const statusDiv = document.getElementById('status');
-
-function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-const startTime = Date.now();
-function formatRelativeTime(ms){
-  const s=Math.floor(ms/1000);
-  if(s<60) return `+${s}s`;
-  const m=Math.floor(s/60), sec=s%60;
-  if(m<60) return `+${m}m ${sec}s`;
-  const h=Math.floor(m/60), min=m%60;
-  return `+${h}h ${min}m`;
+// ================= SIMULATED DATA =================
+const params = ['seismic','magnetic','wind','temperature','solar','solar_wind','precipitation'];
+let dataHistory = {};
+params.forEach(p=>dataHistory[p]=[]);
+function generateData(){
+  const d = {};
+  params.forEach(p=> d[p] = Math.random());
+  return d;
 }
-function updateClock(){
-  const now=new Date();
-  clockDiv.innerHTML = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}<br>${formatRelativeTime(Date.now()-startTime)}`;
-}
-setInterval(updateClock,1000); updateClock();
 
-// --- Зірки ---
-const stars = Array.from({length:300},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*1.4+0.4,baseAlpha:Math.random()*0.4+0.25,twinkle:Math.random()*0.015+0.006}));
+// ================= ANIMATION =================
+const stars = Array.from({length:200},()=>({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*1.5+0.5, alpha:Math.random()*0.5+0.2}));
 
-// --- Дані ---
-let realData = { seismic:0.5, magnetic:0.5, atmosphere_wind:0.5, atmosphere_pressure:0.5, atmosphere_temp:0.5, ocean:0.5, solar_radiation:0.5, solar_wind:0.5, precipitation:0.5, chaos:0.5 };
-let dataHistory = {}; Object.keys(realData).forEach(k=>dataHistory[k]=[]);
-let sources = {};
-
-const blobs = [
-  { param:'seismic', color:'rgba(220,60,80,', phase:0.0, targetSize:6, targetAlpha:0.75 },
-  { param:'magnetic', color:'rgba(60,180,255,', phase:1.2, targetSize:6, targetAlpha:0.75 },
-  { param:'atmosphere_wind', color:'rgba(80,255,160,', phase:2.4, targetSize:6, targetAlpha:0.7 },
-  { param:'atmosphere_temp', color:'rgba(255,180,60,', phase:3.6, targetSize:6, targetAlpha:0.7 },
-  { param:'solar_radiation', color:'rgba(255,240,100,', phase:4.8, targetSize:5, targetAlpha:0.65 },
-  { param:'solar_wind', color:'rgba(200,120,255,', phase:6.0, targetSize:6, targetAlpha:0.7 },
-  { param:'precipitation', color:'rgba(100,220,255,', phase:7.2, targetSize:6, targetAlpha:0.7 }
-];
-blobs.forEach(b=>{ b.angle=Math.random()*Math.PI*2; b.radius=60+Math.random()*50; b.currentSize=b.targetSize; b.currentAlpha=b.targetAlpha; b.currentDist=b.radius; });
-function lerp(a,b,t){ return a+(b-a)*t; }
-
-// --- Фонові формули ---
-const formulas=["E=mc^2","F=ma","∇·E=ρ/ε₀","∫F·dr=ΔK","a^2+b^2=c^2"];
-const formulaObjs=formulas.map(f=>({text:f,x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,alpha:0,phase:Math.random()*Math.PI*2}));
-
-// --- Основний цикл ---
 let t=0;
 function loop(){
   t+=0.016;
   ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // Зірки
-  const starMod=1-realData.chaos*0.35;
+  // --- stars ---
   stars.forEach(s=>{
-    const tw=Math.sin(t*s.twinkle*12+s.x*0.008)*0.18*starMod;
-    ctx.fillStyle=`rgba(220,235,255,${Math.max(0.08,s.baseAlpha+tw).toFixed(3)})`;
+    const a = Math.sin(t*2+s.x*0.01)*0.3+s.alpha;
+    ctx.fillStyle=`rgba(200,255,255,${a})`;
     ctx.fillRect(s.x,s.y,s.size,s.size);
   });
 
-  // Багатошарові полігони
-  const shapes=8;
-  const cx=canvas.width/2, cy=canvas.height/2;
-  for(let i=0;i<shapes;i++){
-    const angle=t*0.2+i*Math.PI*0.5;
-    const r=120+60*Math.sin(t*0.3+i)+realData.seismic*30;
-    const sides=3+i+Math.floor(realData.chaos*5);
+  // --- central geometric chaos ---
+  const cx = canvas.width/2, cy=canvas.height/2;
+  for(let i=0;i<5;i++){
+    const sides = 3+i+Math.floor(Math.sin(t*0.5)*3);
+    const r = 80+i*30+Math.sin(t*0.3+i)*20;
     ctx.beginPath();
     for(let s=0;s<sides;s++){
-      const a=(Math.PI*2/sides)*s+angle;
-      const x=cx+Math.cos(a)*r*(0.8+0.4*Math.sin(t+i));
-      const y=cy+Math.sin(a)*r*(0.8+0.4*Math.cos(t+i));
+      const a = (Math.PI*2/sides)*s+t*0.5*i;
+      const x = cx+Math.cos(a)*r;
+      const y = cy+Math.sin(a)*r;
       s===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
     ctx.closePath();
-    ctx.strokeStyle=`rgba(${50+i*30},${100+i*20},${200-i*20},${0.08+realData.chaos*0.2})`;
-    ctx.lineWidth=1.2+realData.magnetic*2;
+    ctx.strokeStyle=`rgba(${50+i*30},${100+i*30},${200-i*20},0.08)`;
+    ctx.lineWidth=1.2;
     ctx.stroke();
   }
 
-  // Спіралі
-  const spiralPoints=180;
-  ctx.beginPath();
-  for(let i=0;i<spiralPoints;i++){
-    const angle=i*0.2+t*0.6;
-    const radius=i*0.8+50*Math.sin(t*0.5+i*0.3)+realData.solar_radiation*20;
-    const x=cx+Math.cos(angle)*radius;
-    const y=cy+Math.sin(angle)*radius;
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  ctx.strokeStyle=`rgba(255,180,80,${0.05+realData.solar_wind*0.15})`; ctx.lineWidth=1.5; ctx.stroke();
+  // --- left linear graphs ---
+  const graphX = 50, graphY = 50, graphW = 180, graphH = canvas.height-100;
+  ctx.strokeStyle='rgba(77,210,255,0.6)';
+  ctx.lineWidth=1.2;
+  ctx.font="10px Courier New";
+  ctx.fillStyle="#0af";
+  ctx.fillText("Live Data",graphX,graphY-10);
 
-  // Формули
-  formulaObjs.forEach(f=>{
-    f.alpha=Math.sin(t*0.5+f.phase)*0.5+0.5;
-    ctx.fillStyle=`rgba(180,255,200,${f.alpha*0.25})`;
-    ctx.font="18px Courier New";
-    ctx.fillText(f.text,f.x,f.y);
+  params.forEach((p,idx)=>{
+    // append simulated data
+    const val = generateData()[p];
+    dataHistory[p].push(val);
+    if(dataHistory[p].length>graphW) dataHistory[p].shift();
+
+    // draw line
+    ctx.beginPath();
+    dataHistory[p].forEach((v,i)=>{
+      const x = graphX+i;
+      const y = graphY+idx*15 + (1-v)*12;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=`hsl(${idx*50},80%,60%)`;
+    ctx.stroke();
+
+    // update text
+    document.getElementById('data').innerHTML+=`${p}: ${val.toFixed(2)}<br>`;
   });
+  // clear old text
+  setTimeout(()=>document.getElementById('data').innerHTML='',100);
 
   requestAnimationFrame(loop);
 }
 loop();
 </script>
-
 </body>
 </html>
